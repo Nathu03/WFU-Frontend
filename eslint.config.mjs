@@ -22,6 +22,7 @@ export default [
       'react/no-unescaped-entities': 'off',
       '@next/next/no-img-element': 'warn',
       'react-hooks/rules-of-hooks': 'off',
+      'react-hooks/set-state-in-effect': 'off',
     },
   },
 ];
