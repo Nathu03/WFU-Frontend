@@ -173,6 +173,16 @@ jobs:
             npm install --legacy-peer-deps
             npm run build
 
+            if [ ! -d ".next" ]; then
+              echo "ERROR: .next directory was not generated."
+              echo "Current directory contents:"
+              ls -la
+              exit 1
+            fi
+
+            echo "Build output present. .next generated successfully."
+            ls -la .next | head -n 20
+
             if command -v pm2 >/dev/null 2>&1; then
               pm2 describe weforyou-frontend >/dev/null 2>&1 && pm2 restart weforyou-frontend || pm2 start npm --name weforyou-frontend -- run start -- -p 3000
               pm2 save
