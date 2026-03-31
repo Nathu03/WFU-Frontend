@@ -226,3 +226,95 @@ jobs:
           git fetch origin stage production || true
           STAGE_SHA="$(git rev-parse origin/stage)"
           git push --force origin "${STAGE_SHA}:refs/heads/production"
+
+  deploy-production:
+    name: Deploy to Production Server
+    runs-on: ubuntu-latest
+    needs: quality-and-build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/production'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        shell: bash
+        run: |
+          test -n "${{ secrets.PRODUCTION_HOST }}" || (echo "Missing secret: PRODUCTION_HOST" && exit 1)
+          test -n "${{ secrets.PRODUCTION_USER }}" || (echo "Missing secret: PRODUCTION_USER" && exit 1)
+          test -n "${{ secrets.PRODUCTION_APP_PATH }}" || (echo "Missing secret: PRODUCTION_APP_PATH" && exit 1)
+          test -n "${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}" || (echo "Missing secret: PRODUCTION_SSH_PRIVATE_KEY" && exit 1)
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "${{ secrets.PRODUCTION_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Clean production app directory first
+        shell: bash
+        run: |
+          ssh "${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}" << 'EOF'
+            set -e
+            if [ -z "${{ secrets.PRODUCTION_APP_PATH }}" ] || [ "${{ secrets.PRODUCTION_APP_PATH }}" = "/" ]; then
+              echo "Unsafe PRODUCTION_APP_PATH. Aborting."
+              exit 1
+            fi
+            mkdir -p "${{ secrets.PRODUCTION_APP_PATH }}"
+            find "${{ secrets.PRODUCTION_APP_PATH }}" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          EOF
+
+      - name: Sync source to production server
+        shell: bash
+        run: |
+          rsync -az --delete \
+            --exclude ".git" \
+            --exclude "node_modules" \
+            --exclude ".next" \
+            --exclude ".github" \
+            --exclude ".env" \
+            --exclude ".env.local" \
+            --exclude ".env.development.local" \
+            --exclude ".env.test.local" \
+            --exclude ".env.production.local" \
+            ./ \
+            "${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}:${{ secrets.PRODUCTION_APP_PATH }}/"
+
+      - name: Build and restart app on production server
+        shell: bash
+        run: |
+          ssh "${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}" << 'EOF'
+            set -e
+            cd "${{ secrets.PRODUCTION_APP_PATH }}"
+
+            cat > .env.production << EOT
+            NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}
+            NEXT_PUBLIC_APP_NAME=WeForYou
+            EOT
+
+            if [ -z "${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" ]; then
+              sed -i 's|^NEXT_PUBLIC_API_BASE_URL=$|NEXT_PUBLIC_API_BASE_URL=https://wfubackend.trickwave.com|' .env.production
+            fi
+            if [ -z "${{ secrets.NEXT_PUBLIC_API_URL }}" ]; then
+              sed -i 's|^NEXT_PUBLIC_API_URL=$|NEXT_PUBLIC_API_URL=https://wfubackend.trickwave.com/api/v1|' .env.production
+            fi
+            if [ -z "${{ secrets.NEXT_PUBLIC_APP_URL }}" ]; then
+              sed -i 's|^NEXT_PUBLIC_APP_URL=$|NEXT_PUBLIC_APP_URL=https://wfubackend.trickwave.com|' .env.production
+            fi
+
+            npm install --legacy-peer-deps
+            npm run build
+
+            if [ ! -d ".next" ]; then
+              echo "ERROR: .next directory was not generated on production."
+              ls -la
+              exit 1
+            fi
+
+            if command -v pm2 >/dev/null 2>&1; then
+              pm2 describe weforyou-frontend-prod >/dev/null 2>&1 && pm2 restart weforyou-frontend-prod || pm2 start npm --name weforyou-frontend-prod -- run start -- -p 3000
+              pm2 save
+            else
+              echo "PM2 not installed on production server."
+              exit 1
+            fi
+          EOF
