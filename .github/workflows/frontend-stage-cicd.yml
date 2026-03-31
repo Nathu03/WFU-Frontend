@@ -3,9 +3,12 @@ name: Frontend Stage CI/CD
 on:
   push:
     branches:
+      - main
       - stage
+      - production
   pull_request:
     branches:
+      - main
       - stage
   workflow_dispatch:
 
@@ -14,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   quality-and-build:
@@ -173,3 +176,38 @@ jobs:
               exit 1
             fi
           EOF
+
+  sync-stage-from-main:
+    name: Sync stage branch from main
+    runs-on: ubuntu-latest
+    needs: quality-and-build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Force stage to main commit
+        shell: bash
+        run: |
+          git fetch origin main stage || true
+          git push --force origin "${GITHUB_SHA}:refs/heads/stage"
+
+  sync-production-from-stage:
+    name: Sync production branch from stage
+    runs-on: ubuntu-latest
+    needs: sync-stage-from-main
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Force production to stage commit
+        shell: bash
+        run: |
+          git fetch origin stage production || true
+          STAGE_SHA="$(git rev-parse origin/stage)"
+          git push --force origin "${STAGE_SHA}:refs/heads/production"
