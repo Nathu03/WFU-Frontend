@@ -92,6 +92,15 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "${{ secrets.STAGE_HOST }}" >> ~/.ssh/known_hosts
 
+      - name: Clean stage app directory first
+        shell: bash
+        run: |
+          ssh "${{ secrets.STAGE_USER }}@${{ secrets.STAGE_HOST }}" << 'EOF'
+            set -e
+            mkdir -p "${{ secrets.STAGE_APP_PATH }}"
+            find "${{ secrets.STAGE_APP_PATH }}" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          EOF
+
       - name: Sync source to stage server
         shell: bash
         run: |
