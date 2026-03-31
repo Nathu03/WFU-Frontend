@@ -39,9 +39,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            **/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -111,6 +109,11 @@ jobs:
             --exclude "node_modules" \
             --exclude ".next" \
             --exclude ".github" \
+            --exclude ".env" \
+            --exclude ".env.local" \
+            --exclude ".env.development.local" \
+            --exclude ".env.test.local" \
+            --exclude ".env.production.local" \
             ./ \
             "${{ secrets.STAGE_USER }}@${{ secrets.STAGE_HOST }}:${{ secrets.STAGE_APP_PATH }}/"
 
