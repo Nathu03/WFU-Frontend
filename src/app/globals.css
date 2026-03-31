@@ -1,0 +1,294 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   WeForYou Design System — Professional & High-Contrast
+   Inspired by Linear, Vercel, Stripe
+   ============================================================ */
+
+@layer base {
+  :root {
+    /* ── Core surfaces ── */
+    --background:       210 20% 98%;   /* #F7F9FC  — cool off-white, easier on eyes */
+    --foreground:       222 47% 11%;   /* #0F172A  — slate-900, near-black */
+
+    /* ── Card / Popover ── */
+    --card:             0 0% 100%;     /* #FFFFFF  — pure white card */
+    --card-foreground:  222 47% 11%;   /* same as foreground */
+    --popover:          0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* ── Primary — Indigo 600 ── */
+    --primary:          243 75% 59%;   /* #4F46E5 */
+    --primary-foreground: 0 0% 100%;  /* white */
+
+    /* ── Secondary — cool slate ── */
+    --secondary:        214 32% 91%;   /* #E2E8F0 slate-200 */
+    --secondary-foreground: 222 47% 20%; /* slate-800 */
+
+    /* ── Muted ── */
+    --muted:            214 20% 93%;   /* #EEF2F7 */
+    --muted-foreground: 215 16% 47%;   /* #64748B slate-500 — 4.7:1 on white ✓ */
+
+    /* ── Accent — violet tint ── */
+    --accent:           243 60% 95%;   /* #EDE9FE indigo-50 */
+    --accent-foreground: 243 75% 40%;  /* indigo-700 */
+
+    /* ── Destructive ── */
+    --destructive:      0 84% 60%;     /* #EF4444 */
+    --destructive-foreground: 0 0% 100%;
+
+    /* ── Border / Input / Ring ── */
+    --border:           214 32% 88%;   /* #CBD5E1 slate-300 */
+    --input:            214 32% 88%;
+    --ring:             243 75% 59%;   /* indigo-600 */
+
+    /* ── Border radius ── */
+    --radius: 0.625rem;
+
+    /* ── Brand palette ── */
+    --brand-navy:    #1e1b4b;   /* indigo-950 */
+    --brand-indigo:  #4f46e5;   /* indigo-600 */
+    --brand-violet:  #7c3aed;   /* violet-600 */
+    --brand-teal:    #0d9488;   /* teal-600 */
+    --brand-amber:   #d97706;   /* amber-600 */
+    --brand-success: #16a34a;   /* green-600 */
+    --brand-warning: #d97706;   /* amber-600 */
+    --brand-danger:  #dc2626;   /* red-600 */
+    --brand-info:    #0284c7;   /* sky-600 */
+
+    /* Status badge colors */
+    --status-success-bg:  #dcfce7;  --status-success-text:  #15803d;
+    --status-warning-bg:  #fef9c3;  --status-warning-text:  #a16207;
+    --status-danger-bg:   #fee2e2;  --status-danger-text:   #b91c1c;
+    --status-info-bg:     #dbeafe;  --status-info-text:     #1d4ed8;
+    --status-neutral-bg:  #f1f5f9;  --status-neutral-text:  #475569;
+    --status-purple-bg:   #ede9fe;  --status-purple-text:   #6d28d9;
+  }
+
+  /* ── Dark mode kept minimal — mainly for future use ── */
+  .dark {
+    --background:       222 47% 7%;
+    --foreground:       210 40% 98%;
+    --card:             222 47% 10%;
+    --card-foreground:  210 40% 98%;
+    --popover:          222 47% 10%;
+    --popover-foreground: 210 40% 98%;
+    --primary:          243 75% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary:        217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted:            217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent:           217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+    --destructive:      0 63% 31%;
+    --destructive-foreground: 0 0% 100%;
+    --border:           217 33% 17%;
+    --input:            217 33% 17%;
+    --ring:             243 75% 65%;
+  }
+}
+
+/* ── Base resets ── */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+    color: #0f172a; /* slate-900 — always explicit */
+  }
+
+  /* Paragraphs: full-opacity slate-700 for solid readability */
+  p {
+    color: #334155; /* slate-700 */
+  }
+
+  /* Make sure all inputs are clearly readable */
+  input, textarea, select {
+    color: #0f172a; /* slate-900 */
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: hsl(215 16% 60%);
+  }
+}
+
+/* ── Component classes ── */
+@layer components {
+
+  /* ── Sidebar ── */
+  .sidebar-link {
+    @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150;
+  }
+  .sidebar-link-active {
+    @apply bg-white/20 text-white shadow-sm font-semibold;
+  }
+  .sidebar-link-inactive {
+    @apply text-white/70 hover:bg-white/10 hover:text-white;
+  }
+
+  /* ── Cards ── */
+  .stat-card {
+    @apply bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all duration-200;
+  }
+  .stat-card .stat-value {
+    @apply text-2xl font-bold text-slate-900;
+  }
+  .stat-card .stat-label {
+    @apply text-sm font-medium text-slate-700;
+  }
+  .stat-card .stat-sub {
+    @apply text-xs text-slate-500;
+  }
+
+  /* ── Page structure ── */
+  .page-header {
+    @apply flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8;
+  }
+  .page-title {
+    @apply text-2xl font-bold;
+    color: #0f172a;
+  }
+  .page-subtitle {
+    @apply text-sm mt-0.5;
+    color: #64748b;
+  }
+
+  /* ── Section helpers ── */
+  .section-title {
+    @apply text-xl font-semibold;
+    color: #0f172a;
+  }
+  .section-subtitle {
+    @apply text-sm mt-0.5;
+    color: #64748b;
+  }
+
+  /* ── Table improvements ── */
+  .table-header-cell {
+    @apply text-xs font-semibold uppercase tracking-wide;
+    color: #64748b;
+  }
+  .table-cell {
+    @apply text-sm;
+    color: #334155;
+  }
+
+  /* ── Status badges ── */
+  .badge-success {
+    @apply inline-flex items-center gap-1 rounded-full bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 text-xs font-semibold;
+  }
+  .badge-warning {
+    @apply inline-flex items-center gap-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-0.5 text-xs font-semibold;
+  }
+  .badge-danger {
+    @apply inline-flex items-center gap-1 rounded-full bg-red-50 text-red-700 border border-red-200 px-2.5 py-0.5 text-xs font-semibold;
+  }
+  .badge-info {
+    @apply inline-flex items-center gap-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 text-xs font-semibold;
+  }
+  .badge-neutral {
+    @apply inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-0.5 text-xs font-semibold;
+  }
+  .badge-purple {
+    @apply inline-flex items-center gap-1 rounded-full bg-violet-50 text-violet-700 border border-violet-200 px-2.5 py-0.5 text-xs font-semibold;
+  }
+
+  /* ── Form helpers ── */
+  .form-label {
+    @apply text-sm font-medium text-slate-700 mb-1.5 block;
+  }
+  .form-hint {
+    @apply text-xs text-slate-400 mt-1;
+  }
+  .form-error {
+    @apply text-xs text-red-600 mt-1;
+  }
+
+  /* ── Glass effect ── */
+  .glass {
+    @apply bg-white/90 backdrop-blur-md border border-white/20;
+  }
+}
+
+/* ── Utility classes ── */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* ── Gradient backgrounds ── */
+  .gradient-brand {
+    background: linear-gradient(145deg, #1e1b4b 0%, #312e81 40%, #4338ca 100%);
+  }
+  .gradient-brand-subtle {
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8edff 100%);
+  }
+  .gradient-teal {
+    background: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
+  }
+  .gradient-success {
+    background: linear-gradient(135deg, #16a34a 0%, #059669 100%);
+  }
+  .gradient-warning {
+    background: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
+  }
+  .gradient-danger {
+    background: linear-gradient(135deg, #dc2626 0%, #db2777 100%);
+  }
+  .gradient-info {
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  }
+
+  /* ── Color shortcuts ── */
+  .text-brand    { color: var(--brand-indigo); }
+  .bg-brand      { background-color: var(--brand-indigo); }
+  .border-brand  { border-color: var(--brand-indigo); }
+
+  /* ── Subtle surface tints ── */
+  .surface-1 { @apply bg-white border border-slate-200 rounded-xl; }
+  .surface-2 { @apply bg-slate-50 border border-slate-200 rounded-xl; }
+
+  /* ── Focus ring helpers ── */
+  .focus-ring {
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2;
+  }
+}
+
+/* ── Custom scrollbar ── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ── Selection ── */
+::selection {
+  background: #c7d2fe;
+  color: #1e1b4b;
+}
