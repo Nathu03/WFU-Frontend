@@ -67,13 +67,19 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Lint
-        run: npm run lint --if-present
+        run: npm run lint
 
       - name: Type check
-        run: npm run type-check --if-present
+        run: npm run type-check
 
-      - name: Run tests (if script exists)
-        run: npm test --if-present -- --ci
+      - name: Run tests if present
+        shell: bash
+        run: |
+          if npm run | grep -qE "^[[:space:]]+test"; then
+            npm test -- --ci
+          else
+            echo "No test script found; skipping tests."
+          fi
 
       - name: Build
         run: npm run build
