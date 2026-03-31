@@ -64,7 +64,7 @@ jobs:
           EOF
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Lint
         run: npm run lint --if-present
@@ -165,7 +165,7 @@ jobs:
               sed -i 's|^NEXT_PUBLIC_APP_URL=$|NEXT_PUBLIC_APP_URL=https://wfubackend.trickwave.com|' .env.production
             fi
 
-            npm ci
+            npm ci --legacy-peer-deps
             npm run build
 
             if command -v pm2 >/dev/null 2>&1; then
